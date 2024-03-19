@@ -108,9 +108,7 @@ fn wav_to_text(wav: PathBuf, out: PathBuf, model: &WhisperModel) -> anyhow::Resu
     let whisper_dir_path = crate::dirs::repository()?;
     let whisper_dir_path = whisper_dir_path.to_string_lossy();
 
-    let out = out
-        .join(wav.file_name().ok_or(anyhow!("not a file"))?)
-        .with_extension("txt");
+    let out = out.join(wav.file_name().ok_or(anyhow!("not a file"))?);
 
     Command::new(format!("{}/main-{}", whisper_dir_path, &model))
         .args([

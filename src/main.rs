@@ -71,16 +71,16 @@ struct Cli {
 
 #[derive(Subcommand)]
 enum Command {
-    #[clap(about = "Transcribe media file to text using target whisper.cpp model")]
+    /// Transcribe media file to text using target whisper.cpp model
     Transcribe {
         /// The whisper.cpp model to use
-        #[clap(short, long, default_value = "large-v3-q5_0")]
+        #[clap(long, default_value = "large-v3-q5_0")]
         model: WhisperModel,
         /// The input media file to transcribe
-        #[clap(short, long)]
+        #[clap(long)]
         input: PathBuf,
     },
-    #[clap(about = "Print information about the CLI and the environment")]
+    /// Print information about the CLI and the environment
     Info,
 }
 
@@ -88,8 +88,6 @@ fn main() -> Result<()> {
     sh::check_dependencies()?;
 
     let cli = Cli::parse();
-
-    println!("Running with {:?}", WhisperModel::Tiny);
 
     match cli.command {
         Command::Transcribe { model, input } => {
