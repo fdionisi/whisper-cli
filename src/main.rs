@@ -63,6 +63,33 @@ impl fmt::Display for WhisperModel {
     }
 }
 
+#[derive(Clone, Debug, ValueEnum)]
+enum Format {
+    #[clap(name = "srt")]
+    Srt,
+    #[clap(name = "txt")]
+    Txt,
+    #[clap(name = "vtt")]
+    Vtt,
+    #[clap(name = "lrc")]
+    Lrc,
+}
+
+impl fmt::Display for Format {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(
+            f,
+            "{}",
+            match self {
+                Format::Srt => "-osrt".to_string(),
+                Format::Txt => "-otxt".to_string(),
+                Format::Vtt => "-ovtt".to_string(),
+                Format::Lrc => "-olrc".to_string(),
+            }
+        )
+    }
+}
+
 #[derive(Parser)]
 struct Cli {
     #[clap(subcommand)]
@@ -79,6 +106,9 @@ enum Command {
         /// The input media file to transcribe
         #[clap(long)]
         input: PathBuf,
+        /// The input media file to transcribe
+        #[clap(long, default_value = "srt")]
+        format: Format,
     },
     /// Print information about the CLI and the environment
     Info,
@@ -90,9 +120,13 @@ fn main() -> Result<()> {
     let cli = Cli::parse();
 
     match cli.command {
-        Command::Transcribe { model, input } => {
+        Command::Transcribe {
+            model,
+            input,
+            format,
+        } => {
             sh::setup(&model)?;
-            sh::transcribe(input, env::current_dir()?, &model)?;
+            sh::transcribe(input, env::current_dir()?, &model, &format)?;
         }
         Command::Info => {
             println!("Directories:");

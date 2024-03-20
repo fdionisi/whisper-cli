@@ -6,7 +6,7 @@ use std::{
 use anyhow::anyhow;
 use tempfile::tempdir;
 
-use crate::WhisperModel;
+use crate::{Format, WhisperModel};
 
 fn build_whisper(model: &WhisperModel) -> anyhow::Result<()> {
     let whisper_dir_path = crate::dirs::repository()?;
@@ -92,6 +92,7 @@ pub fn transcribe(
     input_file: PathBuf,
     output_dir: PathBuf,
     model: &WhisperModel,
+    format: &Format,
 ) -> anyhow::Result<()> {
     let temp_dir = tempdir()?;
 
@@ -99,12 +100,18 @@ pub fn transcribe(
         media_to_wav(input_file, temp_dir.path())?,
         output_dir,
         model,
+        format,
     )?;
 
     Ok(())
 }
 
-fn wav_to_text(wav: PathBuf, out: PathBuf, model: &WhisperModel) -> anyhow::Result<()> {
+fn wav_to_text(
+    wav: PathBuf,
+    out: PathBuf,
+    model: &WhisperModel,
+    format: &Format,
+) -> anyhow::Result<()> {
     let whisper_dir_path = crate::dirs::repository()?;
     let whisper_dir_path = whisper_dir_path.to_string_lossy();
 
@@ -116,7 +123,7 @@ fn wav_to_text(wav: PathBuf, out: PathBuf, model: &WhisperModel) -> anyhow::Resu
             format!("{whisper_dir_path}/models/ggml-{model}.bin").as_str(),
             "-f",
             &wav.to_string_lossy(),
-            "-otxt",
+            &format.to_string(),
             "-of",
             &out.to_string_lossy(),
         ])
